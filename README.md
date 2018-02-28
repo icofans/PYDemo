@@ -1,7 +1,7 @@
-## PYDemo
-练习demo
+### PYDemo
+python脚本Demo。
 
-## 脚本列表
+### 脚本列表
 1. wx_cmcc.py 获取移动套餐开通代码，保存为Excel表格
 2. vd_mgtv.py 使用you-get下载芒果剧集
 3. vd_qq.py 使用you-get下载腾讯视频剧集
