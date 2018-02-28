@@ -7,7 +7,6 @@ from urllib import request
 from urllib import parse
 import string
 from bs4 import BeautifulSoup
-import requests
 
 def search_film(name):
     url = "http://www.anyunjun.cn/so.html?wd=" + name
@@ -30,12 +29,10 @@ def search_film(name):
         print(index)
         print('类型:' + type)
         print('名称:' + title)
-        print('链接:' + item.get('href'))
+        # print('链接:' + item.get('href'))
 
         # 获取视频源
         get_video_origin(item.get('href'))
-
-
 
 
 def get_video_origin(url):
@@ -48,26 +45,32 @@ def get_video_origin(url):
     res = request.urlopen(url)
     html = res.read().decode("UTF-8")
 
-    print(html)
+    # print(html)
     # 获取视频源
     soup = BeautifulSoup(html,'html5lib')
     curl = soup.find('div',class_='ji-tab-content').find_all('a')
     yuan = [item.find('span',class_='shipy').get_text() for item in curl]
 
+    # 获取视频标识
+    start = html.index("'data':'") + len("'data':'")
+    end = html.index("*_*'+vd,")
+
+    identifier = html[start:end]
+
     # 获取视频源链接
     for yuan_name in yuan:
         # 获取地址
-        get_watch_url(yuan_name)
+        get_watch_url(yuan_name,identifier)
 
     # print(yuan)
 
 
-def get_watch_url(yuan):
+def get_watch_url(yuan,identifier):
     # url
     url = "http://www.anyunjun.cn/ps.html"
     # 参数
     parms = {
-        'data': '77526a7c2b83a439476b5bab3c6914177e6b*_*' + yuan,
+        'data': identifier + '*_*' + yuan,
         't': '{tokens1}'
     }
 
@@ -77,11 +80,17 @@ def get_watch_url(yuan):
     req = request.urlopen(url, data = parms_urlencode)
     html = req.read().decode('UTF-8')
     soup = BeautifulSoup(html,'html5lib')
-    if soup.a:
-        curl = soup.a.get('href')
-        print(yuan + ': ' + vip_serialize(curl))
-    else:
-        print(html)
+
+    curl = soup.find_all('a')
+    if len(curl) == 0:
+        return
+
+    print("-" * 20 + '播放列表：' + yuan + '-' * 20)
+    # 获取播放列表
+    for item in curl:
+        video_title = item.find('span').get_text()
+        video_url = vip_serialize(item.get('href'))
+        print('[%s] : %s' % (video_title,video_url))
 
 
 def vip_serialize(mp4url):
