@@ -2,6 +2,11 @@
 # -*- coding: utf-8 -*-
 # Author : Jiaqiang
 
+
+'''
+获取移动套餐列表及开通地址
+'''
+
 import requests
 import xlwt
 

@@ -2,6 +2,10 @@
 # -*- coding: utf-8 -*-
 # Author : Jiaqiang
 
+'''
+使用you-get工具下载优酷视频剧集
+'''
+
 from urllib import request
 from urllib.parse import quote
 import string

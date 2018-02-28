@@ -2,6 +2,10 @@
 # -*- coding: utf-8 -*-
 # Author : Jiaqiang
 
+'''
+通过全民影视进行全网影片剧集资源进行搜索，获取播放源及进行VIP解析，点击链接可免费观看
+'''
+
 from urllib.request import quote
 from urllib import request
 from urllib import parse

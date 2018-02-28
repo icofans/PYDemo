@@ -2,13 +2,16 @@
 # -*- coding: utf-8 -*-
 # Author : Jiaqiang
 
+'''
+使用you-get工具下载芒果TV剧集
+'''
+
 from urllib import request
 from urllib.parse import quote
 import string
 from bs4 import BeautifulSoup
 import os
 
-# 下载芒果视频
 
 def download_mg_video(name):
 	url = 'https://so.mgtv.com/so/k-' + name
