@@ -3,42 +3,44 @@
 # Author : Jiaqiang
 
 '''
-通过全民影视进行全网影片剧集资源进行搜索，获取播放源及进行VIP解析，点击链接可免费观看
+获取全民影院热门推荐
 '''
 
-from urllib.request import quote
 from urllib import request
-from urllib import parse
-import string
 from bs4 import BeautifulSoup
+from urllib import parse
 import http.client
 
-def search_film(name):
-    url = "http://www.anyunjun.cn/so.html?wd=" + name
-    search_url = quote(url,string.printable)
-    res = request.urlopen(search_url)
+def get_hot_video():
+    url = "http://www.anyunjun.cn"
+    res = request.urlopen(url)
     html = res.read().decode("UTF-8")
 
-    # 获取影片资源
     soup = BeautifulSoup(html,'html5lib')
-    curl = soup.find_all('a',class_='js-tongjic')
+    curl = soup.find_all('div',class_='b-listtab-main')
 
-    if len(curl) == 0:
-        print("未获取资源，请重试")
-
-    # 对影片资源进行解析
-    print("*" * 80)
     for index,item in enumerate(curl):
-        title = item.find('span',class_='s1').get_text()
-        type = item.find('p',class_='star').get_text()
-        print(index)
-        print('类型:' + type)
-        print('名称:' + title)
-        # print('链接:' + item.get('href'))
+        # 热门影片
+        if index == 0:
+            print('【热门影片】')
+            get_video_list(item)
+        elif index == 1:
+            print('\n\n【热门电视剧】')
+            get_video_list(item)
 
-        # 获取视频源
-        get_video_origin(item.get('href'))
 
+def get_video_list(item):
+
+    items = item.find_all('a',class_='js-tongjic')
+    for index,video in enumerate(items):
+        title = video.find('span',class_='s1').get_text()
+        # protagonist = video.find('p',class_='star').get_text()
+        url = video.get('href')
+
+        print('\n%s %s' % (index+1,title))
+        # print('主演 %s' % protagonist)
+
+        get_video_origin(url)
 
 def get_video_origin(url):
     '''
@@ -70,7 +72,6 @@ def get_video_origin(url):
     # print(yuan)
 
 
-
 def get_watch_url(yuan,identifier):
     # url
     url = "http://www.anyunjun.cn/ps.html"
@@ -81,7 +82,8 @@ def get_watch_url(yuan,identifier):
     }
 
     # 发起POST请求
-    parms_urlencode = bytes(parse.urlencode(parms), encoding='utf8')
+    parms_urlencode = bytes(parse.urlencode(parms), encoding=
+    'utf8')
     req = request.urlopen(url, data = parms_urlencode)
     html = req.read().decode('UTF-8')
     soup = BeautifulSoup(html,'html5lib')
@@ -130,5 +132,4 @@ def get_short_url(url):
         return url
 
 
-name = input("输入影片名称:\n")
-search_film(name)
+get_hot_video()
