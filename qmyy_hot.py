@@ -10,6 +10,7 @@ from urllib import request
 from bs4 import BeautifulSoup
 from urllib import parse
 import http.client
+import util
 
 def get_hot_video():
     url = "http://www.anyunjun.cn"
@@ -96,7 +97,7 @@ def get_watch_url(yuan,identifier):
     for item in curl:
         video_title = item.find('span').get_text()
         video_url = vip_serialize(item.get('href'))
-        short_url = get_short_url(video_url)
+        short_url = util.get_short_url(video_url)
         video_title = video_title.replace(' ','')
         video_title = video_title.replace('\n','')
         print('[%s] [%s] : %s' % (yuan,video_title,short_url))

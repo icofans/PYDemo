@@ -39,9 +39,8 @@ def download_mg_video(name):
 		for index,curl in enumerate(arrycurl):
 			you_get_download(curl,index) #开始下载每一集
 	else:
-		print('no')
-		exit(0)
-
+		for index,curl in enumerate(arrycurl):
+			you_get_watch_url(curl,index) #开始下载每一集
 
 def you_get_download(url,index):
 
@@ -50,8 +49,7 @@ def you_get_download(url,index):
 
 	filename = name+'第'+str(index+1)+'集'
 
-	print('='*80)
-	print('url:' + url)
+	print('%s:%s' % (filename,vip_serialize(url)))
 	flag = os.system('you-get' + ' ' + '-o ' + name + ' ' + '-O ' + filename + ' ' + url )
 
 	if flag != 0:
@@ -59,6 +57,27 @@ def you_get_download(url,index):
 		print('errr' +' ' + url)
 		print('=========================')
 
+
+def you_get_watch_url(url,index):
+	filename = name + '第' + str(index + 1) + '集'
+	print('%s:%s' % (filename, vip_serialize(url)))
+
+
+def vip_serialize(mp4url):
+    if 'iqiyi' in mp4url:
+        return 'http://vip.jlsprh.com/jiexi/47ks/?url='+mp4url
+    elif 'qq' in mp4url:
+      return 'http://jx.aeidu.cn/index.php?url='+mp4url
+    elif 'sohu' in mp4url:
+      return 'http://jx.aeidu.cn/index.php?url='+mp4url
+    elif 'youku' in mp4url:
+      return 'http://jx.aeidu.cn/index.php?url='+mp4url
+    elif 'tudou' in mp4url:
+      return 'http://jx.aeidu.cn/index.php?url='+mp4url
+    elif 'le' in mp4url:
+      return 'http://jx.aeidu.cn/index.php?url='+mp4url
+    else:
+      return 'http://jx.aeidu.cn/index.php?url='+mp4url
 
 def user_tip():
 	print("*" * 80)
