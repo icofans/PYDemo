@@ -38,7 +38,6 @@ def dowload_mp3(items):
         try:
             urllib.request.urlretrieve(item['songUrl'], item['songName'] + '.mp3')
         except:
-            x = x - 1
             print('下载出错')
 
 
