@@ -3,7 +3,6 @@
 # Author : Jiaqiang
 
 # 获取网易云歌单下载
-from array import array
 
 import requests
 import urllib
