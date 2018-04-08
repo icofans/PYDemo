@@ -30,7 +30,6 @@ def get_play_list(id):
         songName = item.text
         songUrl = "http://music.163.com/song/media/outer/url?id=%s.mp3" % item['href'].split('=')[1]
         songs.append({'songName':songName,'songUrl':songUrl})
-    print(songs)
     return songs
 
 def download_mp3(items):
