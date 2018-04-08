@@ -7,6 +7,7 @@
 import requests
 import urllib
 from bs4 import BeautifulSoup
+import os
 
 # 获取歌单歌曲列表
 def get_play_list(id):
@@ -29,17 +30,50 @@ def get_play_list(id):
         songName = item.text
         songUrl = "http://music.163.com/song/media/outer/url?id=%s.mp3" % item['href'].split('=')[1]
         songs.append({'songName':songName,'songUrl':songUrl})
+    print(songs)
     return songs
 
-# 下载歌曲
-def dowload_mp3(items):
+def download_mp3(items):
+    '''
+    下载mp3
+    :param items: 需要下载的文件集合
+    :return:
+    '''
+    # 创建下载文件夹
+    if not os.path.exists("music"):  # 判断目录是否存在
+        os.makedirs("music")  # 创建多级目录
+
+    index = 0
     for item in items:
-        print(item['songName']+'开始下载.....')
-        try:
-            urllib.request.urlretrieve(item['songUrl'], item['songName'] + '.mp3')
-        except:
-            print('下载出错')
+        print("开始下载 " + item['songName'])
+        r = requests.get(item['songUrl'],stream=True)
+        if r.url == "http://music.163.com/404":
+            print("    \033[1;31;0m【"+ item['songName'] +"】无版权"+"，无法下载\033[0m")
+        else:
+            index = index + 1
+            file_name = "music/"+item['songName']+".mp3"
+            with open(file_name, 'wb') as f:
+                for chunk in r.iter_content(chunk_size=1024 * 1024):
+                    if chunk:
+                        f.write(chunk)
+            print("    \033[1;32;0m【" + item['songName'] + "】下载完成\033[0m")
+
+    print(str(index)+"首歌曲已下载完成")
 
 
-songs = get_play_list("103514604")
-dowload_mp3(songs)
+def user_tip():
+	print("*" * 80)
+	print('''
+	输入网易云歌单Id以获取
+	如： http://music.163.com/playlist?id=xxxxx  【xxxxx】 即为歌单Id 输入 xxxxx 回车
+	''')
+	print("*" * 80 + '\n')
+
+user_tip()
+name = input('输入网易云歌单Id:\n')
+
+
+songs = get_play_list(name)
+download_mp3(songs)
+
+
