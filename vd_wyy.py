@@ -5,9 +5,12 @@
 # 获取网易云歌单下载
 
 import requests
-import urllib
 from bs4 import BeautifulSoup
 import os
+from mutagen.mp3 import MP3, HeaderNotFoundError
+from mutagen.id3 import ID3, APIC, TPE1, TIT2, TALB, error
+from PIL import Image
+from io import BytesIO
 
 # 获取歌单歌曲列表
 def get_play_list(id):
@@ -27,9 +30,35 @@ def get_play_list(id):
     arr = res.find_all('a')
     songs = []
     for item in arr:
-        songName = item.text
+        # 获取歌曲信息
+        infoUrl = 'http://music.163.com/song?id=%s' % item['href'].split('=')[1]
+        req = requests.session()
+        res = req.get(infoUrl, headers=headers).content
+        soup = BeautifulSoup(res, "html5lib")
+        cnt = soup.find('div', {'class': 'cnt'})
+        cover = soup.find('div', {'class': 'u-cover u-cover-6 f-fl'})
+
+        album = cnt.find_all('a', {'class': 's-fc7'})
+
+        # 专辑封面
+        albumArt = cover.find('img').get('data-src')
+        # 专辑名称
+        albumName = album[-1].string
+        # 歌曲名称
+        songName = cnt.find('em', {'class': 'f-ff2'}).string
+        # 歌手
+        songer = album[0].string
+        # 歌曲链接
         songUrl = "http://music.163.com/song/media/outer/url?id=%s.mp3" % item['href'].split('=')[1]
-        songs.append({'songName':songName,'songUrl':songUrl})
+
+        songInfo = {
+            'songName': songName,
+            'songer': songer,
+            'songUrl': songUrl,
+            'albumName': albumName,
+            'albumArt': albumArt
+        }
+        songs.append(songInfo)
     return songs
 
 def download_mp3(items):
@@ -56,8 +85,71 @@ def download_mp3(items):
                     if chunk:
                         f.write(chunk)
             print("    \033[1;32;0m【" + item['songName'] + "】下载完成\033[0m")
+            # 编辑歌曲信息
+            edit_song_info(file_name,item)
 
     print(str(index)+"首歌曲已下载完成")
+
+def read_image(url):
+    response = requests.get(url)
+    data = bytes(response.content)
+    return data
+
+def edit_song_info(file_path,songInfo):
+    # If no ID3 tags in mp3 file
+    try:
+        audio = MP3(file_path, ID3=ID3)
+    except HeaderNotFoundError:
+        print('Can\'t sync to MPEG frame, not an validate MP3 file!')
+        return
+
+    if audio.tags is None:
+        print('No ID3 tag, trying to add one!')
+        try:
+            audio.add_tags()
+            audio.save()
+        except error as e:
+            print('Error occur when add tags:', str(e))
+            return
+
+    # Modify ID3 tags
+    id3 = ID3(file_path)
+    # Remove old 'APIC' frame
+    # Because two 'APIC' may exist together with the different description
+    # For more information visit: http://mutagen.readthedocs.io/en/latest/user/id3.html
+    if id3.getall('APIC'):
+        id3.delall('APIC')
+    # add album cover
+    id3.add(
+        APIC(
+            encoding=0,         # 3 is for UTF8, but here we use 0 (LATIN1) for 163, orz~~~
+            mime='image/jpeg',  # image/jpeg or image/png
+            type=3,             # 3 is for the cover(front) image
+            data=read_image(songInfo['albumArt'])
+        )
+    )
+    # add artist name
+    id3.add(
+        TPE1(
+            encoding=3,
+            text=songInfo['songer']
+        )
+    )
+    # add song name
+    id3.add(
+        TIT2(
+            encoding=3,
+            text=songInfo['songName']
+        )
+    )
+    # add album name
+    id3.add(
+        TALB(
+            encoding=3,
+            text=songInfo['albumName']
+        )
+    )
+    id3.save(v2_version=3)
 
 
 def user_tip():
@@ -74,5 +166,6 @@ name = input('输入网易云歌单Id:\n')
 
 songs = get_play_list(name)
 download_mp3(songs)
+
 
 
