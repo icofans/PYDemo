@@ -277,13 +277,15 @@ def downloader(items):
 api = Api()
 
 # 获取歌单列表
-songs = api.get_playlist_songs('2180835917')
+songs = api.get_playlist_songs('2235313574')
 
 # 获取专辑列表
 # songs = api.get_album_songs('35040037')
 
+# http://music.163.com/#/m/song?id=25706282
+
 # 获取单曲
-# songs = api.get_song_info('27836503')
+# songs = api.get_song_info('25657368')
 
 # 获取热门
 # songs = api.get_hot_songs('1')

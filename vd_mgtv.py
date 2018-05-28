@@ -43,7 +43,6 @@ def download_mg_video(name):
 			you_get_watch_url(curl,index) #开始下载每一集
 
 def you_get_download(url,index):
-
 	if not os.path.exists(name): # 判断目录是否存在
 		os.makedirs(name)  # 创建多级目录
 
